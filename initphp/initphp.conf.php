@@ -220,14 +220,19 @@ $InitPHP_conf['cache']['filepath'] = 'data/filecache';   //文件缓存目录
 /**
  * MongoDB配置，如果您使用了mongo，则需要配置
  */
-$InitPHP_conf['mongo']['default']['server']     = '127.0.0.1';
-$InitPHP_conf['mongo']['default']['port']       = '27017';
+$InitPHP_conf['mongo']['default']['server']     = 'mongo.duapp.com';
+$InitPHP_conf['mongo']['default']['port']       = '8908';
 $InitPHP_conf['mongo']['default']['option']     = array('connect' => true);
-$InitPHP_conf['mongo']['default']['db_name']    = 'test';
+$InitPHP_conf['mongo']['default']['db_name']    = '';
 $InitPHP_conf['mongo']['default']['username']   = '';
 $InitPHP_conf['mongo']['default']['password']   = '';
 /**
  * Redis配置，如果您使用了redis，则需要配置
  */
-$InitPHP_conf['redis']['default']['server']     = '127.0.0.1';
-$InitPHP_conf['redis']['default']['port']       = '6379';
+$InitPHP_conf['redis']['default']['server']     = 'redis.duapp.com';
+$InitPHP_conf['redis']['default']['port']       = '80';
+$InitPHP_conf['redis']['default']['db_name']	= '';
+$InitPHP_conf['redis']['default']['username']   = '';
+$InitPHP_conf['redis']['default']['password']   = '';
+
+
