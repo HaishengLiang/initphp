@@ -336,7 +336,10 @@ class InitPHP extends coreInit {
 	 * @return object
 	 */
 	public static function getUtils($className) {
-		$classPath = INITPHP_PATH . "/core/util/" . $className . '.init.php';
+		$classPath = APP_PATH . "/util/" . $className . '.init.php'; 
+		if (!file_exists($classPath)){
+			$classPath = INITPHP_PATH . "/core/util/" . $className . '.init.php';
+		}
 		$classFullName = $className . "Init";
 		if (!file_exists($classPath)) InitPHP::initError('file '. $className . '.php is not exist!');
 		if (!isset(parent::$instance['initphp']['u'][$classFullName])) {

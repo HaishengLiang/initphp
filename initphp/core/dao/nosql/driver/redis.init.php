@@ -26,6 +26,7 @@ class redisInit {
 		if ($config['port'] == '')  $config['port'] = '6379';
 		$this->redis = new Redis();
 		$this->redis->connect($config['server'], $config['port']);
+		$this->redis->auth($config['username'] . "-" . $config['password'] . "-" . $config['db_name']);
 		return $this->redis;
 	}
 	

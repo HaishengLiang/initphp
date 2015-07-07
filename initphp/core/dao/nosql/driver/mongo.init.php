@@ -10,11 +10,22 @@ if (!defined('IS_INITPHP')) exit('Access Denied!');
  * $Dtime:2013-5-29 
 ***********************************************************************************/
 class mongoInit {
-
-	private $mongo; //mongo对象
-	private $db; //db mongodb对象数据库
-	private $collection; //集合，相当于数据表 
 	
+	protected $mongoClient;
+	protected $db;
+	protected $log;
+
+
+	private $host;
+	private $port;
+	private $user;
+	private $pass;
+	private $dbname;
+	private $connection_string;
+
+	private $collection;
+
+
 	/**
 	 * 初始化Mongo
 	 * $config = array(
@@ -29,6 +40,9 @@ class mongoInit {
 	 * @param unknown_type $config
 	 */
 	public function init($config = array()) {
+		
+		$this->log = InitPHP::getUtils("log"); //获取logInit对象实例
+		/*
 		if ($config['server'] == '')  $config['server'] = '127.0.0.1';
 		if ($config['port'] == '')  $config['port'] = '27017';
 		if (!$config['option']) $config['option'] = array('connect' => true);
@@ -38,6 +52,78 @@ class mongoInit {
 		$this->db = $this->mongo->selectDB($config['db_name']);
 		if ($config['username'] != '' && $config['password'] != '') 
 			$this->db->authenticate($config['username'], $config['password']);
+		*/
+		$this->host	  = $config['server'] == '' ? '127.0.0.1' : $config['server'];
+		$this->port   = $config['port'] == '' ? '27017' : $config['port'];
+		$this->user   = $config['username'] == '' ? 'root' : $config['username'];
+		$this->pass   = $config['password'] == '' ? '' : $config['password'];
+		$this->dbname = $config['db_name'] == '' ? 'test' : $config['db_name'];
+
+		$this->connection_string();
+		$this->connect();
+
+	}
+
+	/**
+	 * Connect to MongoDB
+	 *
+	 * @since v1.0.0
+	 */
+	private function connect(){
+		$max_reconnect_times = 3;
+		$options = array('connect'=>true);
+		for ($i=0; $i < $max_reconnect_times; $i++) { 
+			try{
+				$this->mongoClient = new MongoClient($this->connection_string, $options);
+				$this->db = $this->mongoClient->selectDB($this->dbname);
+	    		$login = $this->db->authenticate($this->user, $this->pass);
+	    		if($login['ok']==1){return $this;}
+	    		$this->log->write("Unable to login to MongoDB: {$login['errmsg']} {$i}",'ERROR');
+			}catch (MongoConnectionException $e){
+				if($i==($max_reconnect_times-1)){
+					$this->log->write("Unable to connect to MongoDB: {$e->getMessage()} {$i}",'ERROR');
+				}
+			}
+		}
+		
+	}
+
+	public function close()
+	{
+		$this->mongoClient->close();
+	}
+
+	/**
+	 * Create connection string
+	 *
+	 * @since v1.0.0
+	 */
+	private function connection_string(){
+		
+		$connection_string = "mongodb://";
+		$dbhostflag = FALSE;
+
+		if (empty($this->host)){
+			$this->log->write("The Host must be set to connect to MongoDB",'ERROR');
+		}
+		if (empty($this->dbname)){
+			$this->log->write("The Database must be set to connect to MongoDB",'ERROR');
+		}
+		/*
+		if ( ! empty($this->user) && ! empty($this->pass)){
+			$connection_string .= "{$this->user}:{$this->pass}@";
+		}
+		*/
+		if (isset($this->port) && ! empty($this->port)){
+			$connection_string .= "{$this->host}:{$this->port}";
+		}else{
+			$connection_string .= "{$this->host}";
+		}
+		if ($dbhostflag === TRUE){
+			$this->connection_string = trim($connection_string) . '/' . $this->dbname;
+		}else{
+			$this->connection_string = trim($connection_string);
+		}
 	}
 	
 	/**
@@ -147,5 +233,10 @@ class mongoInit {
 		return $this->db;
 	}
 	
-	
+	/**
+	 * 获取 Objectid
+	 */
+	public function getId() {
+		return new MongoId(); 
+	}
 }
