@@ -1,11 +1,11 @@
 <?php
 /*********************************************************************************
- * InitPHP 3.6 国产PHP开发框架  
+ * InitPHP 3.8.2 国产PHP开发框架   
  *-------------------------------------------------------------------------------
  * 版权所有: CopyRight By initphp.com
  * 您可以自由使用该源码，但是在使用过程中，请保留作者信息。尊重他人劳动成果就是尊重自己
  *-------------------------------------------------------------------------------
- * Author:zhuli Dtime:2014-9-3
+ * Author:zhuli Dtime:2014-11-25
  ***********************************************************************************/
 /* 框架全局配置常量 */ 
 define('INITPHP_PATH', dirname(__FILE__));
@@ -23,6 +23,7 @@ $InitPHP_conf['url'] = 'http://127.0.0.1/initphp_3.0/demo/';
  * 是否开启调试
  */
 $InitPHP_conf['is_debug'] = true; //开启-正式上线请关闭
+$InitPHP_conf['show_all_error'] = false; //是否显示所有错误信息，必须在is_debug开启的情况下才能显示
 /**
  * 日志目录，非常重要
  * 记录全局的框架层面的异常ERROR
@@ -63,7 +64,7 @@ $InitPHP_conf['dao']['path']  = 'library/dao/'; //后缀
  * 4. 支持多库配置 $InitPHP_conf['db']['default']
  * 5. 详细见文档
  */
-$InitPHP_conf['db']['driver']   = 'mysqli'; //选择不同的数据库DB 引擎，一般默认mysqli,或者mysqls
+$InitPHP_conf['db']['driver']   = 'mysql'; //选择不同的数据库DB 引擎，一般默认mysqli,或者mysql
 //default数据库配置 一般使用中 $this->init_db('default')-> 或者 $this->init_db()-> 为默认的模型
 $InitPHP_conf['db']['default']['db_type']                   = 0; //0-单个服务器，1-读写分离，2-随机
 $InitPHP_conf['db']['default'][0]['host']                   = '127.0.0.1'; //主机
@@ -155,6 +156,31 @@ $InitPHP_conf['interceptor']['rule'] = array( //拦截器规则
 		)//正则表达式
 	)
 );
+
+/*********************************RPC服务*****************************************/
+/**
+ * RPC配置
+ * RPC分两种，服务提供者-provider和服务使用者-customer
+ */
+$InitPHP_conf['provider']['allow'] = array(
+	"user"
+); //允许访问的Service,例如userService,则是user。如果带path，则xxx/user
+/*
+ * 网络范围表示方法：
+ * 通配符:      1.2.3.*
+ * CIDR值:     1.2.3.0/24 或
+ * IP段:       1.2.3.0-1.2.3.255
+ */
+$InitPHP_conf['provider']['allow_ip'] = array(
+	"127.0.0.2", "192.168.*.*", "127.0.0.*"
+);
+$InitPHP_conf['customer'] = array(
+	"user" => array( //可以进行分组
+		"host" => array("localhost"), //服务提供者所在的服务器的IP地址，一般是内网IP地址。可以填写多台服务器
+		"file" => "/initphp/branches/initphp_3.8/demo/www/rpc.php" //访问服务的入口文件，例如加上IP地址：http://localhost/rpc.php
+	)
+);
+
 
 /*********************************Hook配置*****************************************/
 /**
